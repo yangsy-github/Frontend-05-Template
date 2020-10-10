@@ -25,12 +25,14 @@
 	</body>
 	<script type="text/javascript">
 		let pattern = [
-			[0, 0, 0],
-			[0, 0, 0],
+			[0, 2, 0],
+			[0, 1, 0],
 			[0, 0, 0]
-		]
-		let color = 1;
+		]//棋盘
 
+		let color = 1; // 1是O，2是X
+
+		//刷新棋盘
 		function show(){
 			let board = document.getElementById("main");
 			board.innerHTML = "";
@@ -48,19 +50,22 @@
 			}
 		}
 
+		//下棋
 		function move(x, y){
 			pattern[x][y] = color;
 			if(check(pattern, color)){
 				alert(color == 2 ? "❌ is winner!" : "⭕ is winner!");
 			}
-			color = 3 - color;
+			color = 3 - color; //切换棋子
 			show();
 			if(willWin(pattern, color)){
 				console.log(color == 2 ? "❌ will win!" : "⭕ will win!");
 			}
 		}
 
+		//检查是否获胜
 		function check(pattern, color){
+			//检查每一行
 			for(let i = 0; i < 3; i++){
 				let win = true;
 				for(let j = 0; j < 3; j++){
@@ -73,6 +78,7 @@
 				}
 			}
 
+			//每一列
 			for(let i = 0; i < 3; i++){
 				let win = true;
 				for(let j = 0; j < 3; j++){
@@ -85,6 +91,7 @@
 				}
 			}
 
+			//左斜行
 			{
 				let win = true;
 				for(var i = 0; i < 3; i++){
@@ -98,6 +105,7 @@
 
 			}
 
+			//右斜行
 			{
 				let win = true;
 				for(var i = 0; i < 3; i++){
@@ -112,10 +120,12 @@
 			return false;
 		}
 
+		//克隆棋盘
 		function clone(pattern){
 			return JSON.parse(JSON.stringify(pattern));
 		}
 
+		//判断下一步是否可以赢
 		function willWin(pattern, color){
 			for(let i = 0; i < 3; i++){
 				for(let j = 0; j < 3; j++){
@@ -131,6 +141,7 @@
 			return null;
 		}
 
+		//判断最好的选择
 		function bestChoice(pattern, color){
 			let p;
 			if(p = willWin(pattern, color)){
@@ -139,7 +150,7 @@
 					result: 1
 				}
 			}
-			let result = -2;
+			let result = -2;  // result 1为赢，-1为输
 			let point = null;
 			for(let i = 0; i < 3; i++){
 				for(let j = 0; j <3; j++){
@@ -154,7 +165,7 @@
 						point = [i, j];
 					}
 				}
-			}	
+			}
 			return {
 				point: point,
 				result: point ? result : 0
