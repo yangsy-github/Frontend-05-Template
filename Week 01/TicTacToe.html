@@ -18,10 +18,21 @@
 			    position: absolute;
 			    left: calc(50% - 153px);
 			}
+			#btns{
+				top: 70%;
+			    position: absolute;
+			    left: calc(50% - 153px);
+			    width: 306px;
+			}
 		</style>
 	</head>
 	<body>
 		<div id="main"></div>
+		<div id="btns">
+			<button id="aiBtn" type="button" style="margin-left: 60px" onclick="changeAiMove()" >双人游戏</button>
+			<button id="reset" type="button" style="margin-left: 50px" onclick="reset()" >重置游戏</button>
+		</div>
+		
 	</body>
 	<script type="text/javascript">
 		let pattern = [
@@ -30,8 +41,9 @@
 			[0, 0, 0]
 		]//棋盘
 
-		let color = 1 // 1是O，2是X
-
+		let color = 1; // 1是O，2是X
+		let isAi = true; //是否人机对战
+		
 		//刷新棋盘
 		function show(){
 			let board = document.getElementById("main");
@@ -40,14 +52,44 @@
 				for(let j = 0; j < 3; j++){
 					var cell = document.createElement("div");
 					cell.classList.add("cell");
-					cell.innerText = 
-						pattern[i][j] == 2 ? "❌" :
-						pattern[i][j] == 1 ? "⭕" : "";
-						board.appendChild(cell);
-					cell.addEventListener("click", () => userMove(i, j));
+					if(pattern[i][j] == 0){
+                        cell.addEventListener("click", () => userMove(i, j));
+                    }else{
+                        cell.innerText = 
+                        pattern[i][j] == 2 ? "❌" :
+                        pattern[i][j] == 1 ? "⭕" : "";
+                    }
+                    board.appendChild(cell);
 				}
 				board.appendChild(document.createElement("br"));
 			}
+		}
+
+		function reset(){
+			console.log("reset");
+			pattern = [
+				[0, 0, 0],
+				[0, 0, 0],
+				[0, 0, 0]
+			]
+			show();
+		}
+
+		//切换游戏模式
+		function changeAiMove(){
+			let aiBtn = document.getElementById("aiBtn");
+			isAi = !isAi;
+			if(isAi){
+				aiBtn.innerHTML = "双人游戏";
+			}else{
+				aiBtn.innerHTML = "人机对战";
+			}
+			pattern = [
+				[0, 0, 0],
+				[0, 0, 0],
+				[0, 0, 0]
+			]
+			show();
 		}
 
 		//下棋
@@ -75,6 +117,7 @@
 				console.log(color == 2 ? "❌ will win!" : "⭕ will win!");
 			}
 			console.log(color, bestChoice(pattern, color));
+			if(isAi)
 			computerMove();
 		}
 
@@ -89,6 +132,7 @@
 			color = 3 - color;
 			show();
 		}
+
 		//检查是否获胜
 		function check(pattern, color){
 			//检查每一行
