@@ -25,12 +25,12 @@
 	</body>
 	<script type="text/javascript">
 		let pattern = [
-			[0, 2, 0],
-			[0, 1, 0],
+			[0, 0, 0],
+			[0, 0, 0],
 			[0, 0, 0]
 		]//棋盘
 
-		let color = 1; // 1是O，2是X
+		let color = 1 // 1是O，2是X
 
 		//刷新棋盘
 		function show(){
@@ -44,7 +44,7 @@
 						pattern[i][j] == 2 ? "❌" :
 						pattern[i][j] == 1 ? "⭕" : "";
 						board.appendChild(cell);
-					cell.addEventListener("click", () => move(i, j));
+					cell.addEventListener("click", () => userMove(i, j));
 				}
 				board.appendChild(document.createElement("br"));
 			}
@@ -61,8 +61,34 @@
 			if(willWin(pattern, color)){
 				console.log(color == 2 ? "❌ will win!" : "⭕ will win!");
 			}
+			console.log(color, bestChoice(pattern, color));
 		}
 
+		function userMove(x, y){
+			pattern[x][y] = color;
+			if(check(pattern, color)){
+				alert(color == 2 ? "❌ is winner!" : "⭕ is winner!");
+			}
+			color = 3 - color; //切换棋子
+			show();
+			if(willWin(pattern, color)){
+				console.log(color == 2 ? "❌ will win!" : "⭕ will win!");
+			}
+			console.log(color, bestChoice(pattern, color));
+			computerMove();
+		}
+
+		//电脑操作
+		function computerMove(){
+			let choice = bestChoice(pattern, color);
+			if(choice.point)
+				pattern[choice.point[0]][choice.point[1]] = color;
+			if(check(pattern, color)){
+				alert(color == 2 ? "❌ is winner!" : "⭕ is winner!");
+			}
+			color = 3 - color;
+			show();
+		}
 		//检查是否获胜
 		function check(pattern, color){
 			//检查每一行
@@ -173,6 +199,6 @@
 		}	
 
 		show(pattern);
-		console.log(color, bestChoice(pattern, color));
+		
 	</script>
 </html>
