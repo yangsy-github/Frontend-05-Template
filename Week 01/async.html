@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<style type="text/css">
+		div{
+			background-color: grey;
+			display: inline-block;
+			margin: 30px;
+			width: 100px;
+			height: 100px;
+			border-radius: 50px;
+		}
+
+		.green.light{
+			background-color: green;
+		}
+
+		.yellow.light{
+			background-color: yellow;
+		}
+
+		.red.light{
+			background-color: red;
+		}
+	</style>
+</head>
+<body>
+	<div class="green"></div>
+	<div class="yellow"></div>
+	<div class="red"></div>
+	<button id="next" type="button" style="margin-left: 60px" onclick="awaitNext()" >next</button>
+	
+</body>
+<script type="text/javascript">
+	function light(color){
+		var lights = document.getElementsByTagName("div");
+		for(let i = 0; i < lights.length; i++){
+			lights[i].classList.remove("light");
+		}
+		document.getElementsByClassName(color)[0].classList.add("light");
+	}
+
+	function go(){
+		light("green");
+		setTimeout(function(){
+			light("yellow");
+			setTimeout(function(){
+				light("red");
+				setTimeout(function(){
+					go();
+				},500);
+			},200);
+		},1000);
+	}
+
+	function sleep(t){
+		return new Promise((resolve, reject)=> {
+			setTimeout(resolve,t);
+		});
+	}
+
+	function promiseGo(){
+		light("green");
+		sleep(1000).then(()=>{
+			light("yellow");
+			return sleep(200);
+		}).then(()=> {
+			light("red");
+			return sleep(500);
+		}).then(go);
+	}
+
+	function happen(element, eventName){
+		return new Promise((resolve,reject)=> {
+			element.addEventListener(eventName, resolve, {once:true});
+		});
+	}
+
+	async function awaitGo(){
+		while(true){
+			light("green");
+			await sleep(1000);
+			light("yellow");
+			await sleep(200);
+			light("red");
+			await sleep(500);
+		}
+	}
+
+	async function awaitNext(){
+		while(true){
+			light("green");
+			await happen(document.getElementById("next"), "click");
+			light("yellow");
+			await happen(document.getElementById("next"), "click");
+			light("red");
+			await happen(document.getElementById("next"), "click");
+		}
+	}
+
+	
+</script>
+</html>
