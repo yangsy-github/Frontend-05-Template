@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>map</title>
+	<style type="text/css">
+		.cell{
+			background-color: grey;
+			display: inline-block;
+			width: 6px;
+			height: 6px;
+			line-height: 7px;
+			border-right: 1px solid white;
+			border-bottom: 1px solid white;
+			vertical-align: top;
+		}
+
+		#container{
+			width: 701px;
+			line-height: 7px;
+		}
+	</style>
+</head>
+<body>
+	<div id="container"></div>
+	<button onclick="localStorage['map']=JSON.stringify(map)">save</button>
+</body>
+<script type="text/javascript">
+	class Sorted{
+		constructor(data, compare){
+			this.data = data.slice();
+			this.compare = compare || ((a, b)=> a - b);
+		}
+
+		take() {
+			let min = this.data[0];
+			let minIndex = 0;
+
+			for(let i = 0; i < this.data.length; i++) {
+				if(this.compare(this.data[i], min) < 0) {
+					min = this.data[i];
+					minIndex = i;
+				}
+			}
+
+			this.data[minIndex] = this.data[this.data.length - 1];
+			this.data.pop();
+
+			return min;
+		}
+
+		give(d) {
+			this.data.push(d);
+		}
+	}
+
+	let map = localStorage["map"] ? JSON.parse(localStorage["map"]) : Array(10000).fill(0);
+	let container = document.getElementById("container");
+	let mouseDown = false;
+	let clear = false;
+
+	document.addEventListener("mousedown", e=> {
+		mouseDown = true;
+		clear = (e.which === 3);
+	});
+
+	document.addEventListener("mouseup", ()=> {
+		mouseDown = false;
+	});
+
+	document.addEventListener("contextmenu", e=> {
+		e.preventDefault();
+	});
+
+	for (let i = 0; i < 100; i++) {
+		for (let j = 0; j < 100; j++) {
+			let cell = document.createElement("div");
+			cell.classList.add("cell");
+
+			if (map[100 * i + j] === 1) {
+				cell.style.backgroundColor = "black";
+			}
+
+			cell.addEventListener("mousemove", ()=> {
+				if(mouseDown) {
+					if(clear) {
+						cell.style.backgroundColor = "";
+						map[100 * i + j] = 0;
+					}else {
+						cell.style.backgroundColor = "black";
+						map[100 * i + j] = 1;
+						console.log(i, j);
+					}
+				}
+			});
+			container.appendChild(cell);
+		}
+	}
+
+	function sleep(t) {
+		return new Promise(resolve => {
+			setTimeout(resolve, t);
+		});
+	}
+
+	async function findPath(map, start, end) {
+		//let queue = [start];
+		let queue = new Sorted([start], (a,b)=> dinstance(a) - dinstance(b));
+		let table = Object.create(map);
+
+		async function insert(x, y, pre) {
+			if(x < 0 || x >= 100 || y < 0 || y >= 100) {
+				return;
+			}
+
+			if(table[100 * x + y]) {
+				return;
+			}
+
+			//await sleep(30);
+			container.children[100 * x + y].style.backgroundColor = "lightgreen";
+			//map[100 * x + y] = 2;
+			table[100 * x + y] = pre;
+			queue.give([x,y]);
+			//queue.push([x,y]);
+		}
+
+		function dinstance(a) {
+			return (a[0] - end[0]) ** 2 + (a[1] - end[1]) ** 2;
+		}
+
+		while(queue.data.length) {
+		//while(queue.length) {
+			let [x, y] = queue.take();
+			//let [x, y] = queue.shift();
+
+			if(x === end[0] && y === end[1]) {
+				var path = [];
+
+				while(x != start[0] || y != start[1]) {
+					path.push([x, y]);
+					await sleep(30);
+					container.children[100 * x + y].style.backgroundColor = "purple";
+					[x, y] = table[100 * x + y];
+				}
+				path.push(start);
+				container.children[100 * start[0] + start[1]].style.backgroundColor = "purple";
+				
+				return path;
+			}
+
+			await insert(x, y - 1, [x, y]);
+			await insert(x - 1, y, [x, y]);
+			await insert(x, y + 1, [x, y]);
+			await insert(x + 1, y, [x, y]);
+
+			await insert(x - 1, y - 1, [x, y]);
+			await insert(x - 1, y + 1, [x, y]);
+			await insert(x + 1, y - 1, [x, y]);
+			await insert(x + 1, y + 1, [x, y]);
+
+		}
+
+		return null;
+	}
+
+	
+
+</script>
+</html>
